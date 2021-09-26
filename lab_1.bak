@@ -1,0 +1,8 @@
+(define pi (* 4 (atan 1)))
+pi
+(define (hypot a b)
+  (sqrt(+ (* a a) (* b b))))
+(hypot 3 4)
+(if #f 2 1)
+(if (> 3 2) 1 0)
+(* 100 (if #t 2 4))
