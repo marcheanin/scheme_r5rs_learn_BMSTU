@@ -1,3 +1,4 @@
+;----------------------#1-------------------------
 ;#1.1
 (define (my-range a b d)
   (if (>= a b)
@@ -56,15 +57,55 @@
 
 ;#1.6
 (define (my-fold-right op xs)
-  (my-fold-left op (reverse xs))
-  )
+  (if (<= (length xs) 1)
+      (car xs)
+      (op (car xs) (my-fold-right op (cdr xs)))))
 (my-fold-right expt     '(2 3 4))
 (my-fold-right expt     '(2))
-;#2
 
+;---------------#2---------------------
 
+;#2.1
+(define (list->set xs)
+  (if (null? xs)
+      '()
+      (if (my-element? (car xs) (cdr xs))
+          (list->set (cdr xs))
+          (append (list->set (cdr xs)) (list (car xs)))
+          )
+      )
+  )
 
-;#5
+(list->set '(1 1 2 3)) 
+
+;#2.2
+(define (set? xs)
+  (if (null? xs)
+      #t
+      (and (my-element? (car xs) (cdr xs)) (set? (cdr xs)))
+      )
+  )
+
+(set? '(1 2 3 3))                            
+(set? '())
+
+;#2.3
+(define (union xs1 xs2)
+  (if (null? xs1)
+      (reverse xs2)
+      (if (my-element? (car xs1) xs2)
+          (union (cdr xs1) xs2)
+          (union (cdr xs1) (cons (car xs1) xs2)))
+          )
+      )
+  
+
+(union '(1 2 3) '(2 3 4))
+
+;#2.4
+
+  
+;----------------------#5------------------------
 
 (define (f x) (+ x 2))
 (define (g x) (* x 3))
