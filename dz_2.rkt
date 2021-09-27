@@ -59,7 +59,9 @@
 (define (my-fold-right op xs)
   (if (<= (length xs) 1)
       (car xs)
-      (op (car xs) (my-fold-right op (cdr xs)))))
+      (op (car xs) (my-fold-right op (cdr xs)))
+      )
+  )
 (my-fold-right expt     '(2 3 4))
 (my-fold-right expt     '(2))
 
@@ -103,7 +105,48 @@
 (union '(1 2 3) '(2 3 4))
 
 ;#2.4
+(define (intersection xs1 xs2)
+  (if (null? xs1)
+      '()
+      (if (my-element? (car xs1) xs2)
+          (cons (car xs1) (intersection (cdr xs1) xs2))
+          (intersection (cdr xs1) xs2)
+          )
+      )
+  )
 
+(intersection '(1 2 3) '(2 3 4))
+
+;#2.5
+(define (difference xs1 xs2)
+    (if (null? xs1)
+      '()
+      (if (my-element? (car xs1) xs2)
+          (difference (cdr xs1) xs2)
+          (cons (car xs1) (difference (cdr xs1) xs2))
+          )
+      )
+  )
+  
+(difference '(1 2 3 4 5) '(2 3))
+
+;#2.6
+(define (symmetric-difference xs1 xs2)
+  (union (reverse (difference xs1 xs2)) (difference xs2 xs1))
+  )
+
+(symmetric-difference '(1 2 3 4) '(3 4 5 6))
+
+;#2.7
+(define (set-eq? xs1 xs2)
+  (if (null? xs1)
+      #t
+      (and (my-element? (car xs1) xs2) (set-eq? (cdr xs1) xs2))
+      )
+  )
+
+(set-eq? '(1 2 3) '(3 2 1))                  
+(set-eq? '(1 2) '(1 3)) 
   
 ;----------------------#5------------------------
 
