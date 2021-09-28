@@ -139,14 +139,12 @@
 
 ;#2.7
 (define (set-eq? xs1 xs2)
-  (if (null? xs1)
-      #t
-      (and (my-element? (car xs1) xs2) (set-eq? (cdr xs1) xs2))
-      )
+  (null? (symmetric-difference xs1 xs2))
   )
 
 (set-eq? '(1 2 3) '(3 2 1))                  
-(set-eq? '(1 2) '(1 3)) 
+(set-eq? '(1 2) '(1 3))
+(set-eq? '(1) '(1 2 3))
   
 ;----------------------#5------------------------
 
