@@ -229,10 +229,26 @@
 (newline)
 
 ;#3.7
+
+(define (make-elem a sep)
+  (if (or (string-prefix? sep a) (= (string-length a) 0))
+      ""
+      (string-append (make-string 1 (string-ref a 0)) (make-elem (substring a 1) sep))
+      )
+  )
+
 (define (string-split a sep)
-  (if (= (length a) 0)
-      ()
-      (if (string-prefix? a)
+  (if (= (string-length a) 0)
+      '()
+      (if (string-prefix? sep a)
+          (string-split (substring a (string-length sep)) sep)
+          (cons (make-elem a sep) (string-split (substring a (string-length (make-elem a sep))) sep))
+          )
+      )
+  )
+(string-split "x;y;z" ";")     
+(string-split "x-->y-->z" "-->")
+(string-split "qwe-WEF-EW-QDE" "-")
 
 ;----------------------#5------------------------
 
