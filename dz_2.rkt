@@ -145,7 +145,95 @@
 (set-eq? '(1 2 3) '(3 2 1))                  
 (set-eq? '(1 2) '(1 3))
 (set-eq? '(1) '(1 2 3))
-  
+
+;----------------------#3------------------------
+
+;#3.1
+(define (string-trim-left str)
+  (define xs1 (string->list str))
+  (define (loop xs)
+    (if (char-whitespace? (car xs))
+        (loop (cdr xs))
+        xs
+        )
+    )
+  (list->string (loop xs1))
+  )
+(string-trim-left  "\t\tabc def")
+;то же самое, только без pain:
+;(define (string-trim-left1 str)
+;  (if (char-whitespace? (string-ref str 0) )
+;      (string-trim-left1 (substring str 1))
+;      str
+;      )
+;  )
+;(string-trim-left1  "\t\tabc def")
+
+;#3.2
+(define (string-reverse str)
+  (list->string (reverse (string->list str)))
+  )
+
+(define (string-trim-right str)
+  ;(list->string (reverse (string->list (string-trim-left (list->string (reverse (string->list "wrrwr")))))))
+  (string-reverse (string-trim-left (string-reverse str)))
+  )
+
+(string-trim-right "abc def\t")
+
+;#3.3
+(define (string-trim str)
+  (string-trim-right (string-trim-left str))
+  )
+
+(string-trim       "\t abc def \n")
+
+;#3.4
+(define (string-prefix? a b)
+  (cond ((> (string-length a) (string-length b)) #f)
+        ((equal? a (substring b 0 (string-length a))) #t)
+        (else #f)
+        )
+  )
+
+(string-prefix? "abc" "abcdef")
+(string-prefix? "bcd" "abcdef")
+(string-prefix? "abcdef" "abc")
+(newline)
+
+;#3.5
+(define (string-suffix? a b)
+    (cond ((> (string-length a) (string-length b)) #f)
+        ((equal? a (substring b (- (string-length b) (string-length a)))) #t)
+        (else #f)
+        )
+  )
+
+(string-suffix? "def" "abcdef")
+(string-suffix? "bcd" "abcdef")
+(newline)
+
+;#3.6
+(define (string-infix? a b)
+  (cond ((> (string-length a) (string-length b)) #f)
+        ((string-prefix? a b) #t)
+        (else (string-infix? a (substring b 1)))
+        )
+  )
+
+(string-infix? "def" "abcdefgh")
+(string-infix? "abc" "abcdefgh")
+(string-infix? "fgh" "abcdefgh")
+(string-infix? "ijk" "abcdefgh")
+(string-infix? "bcd" "abc")
+(newline)
+
+;#3.7
+(define (string-split a sep)
+  (if (= (length a) 0)
+      ()
+      (if (string-prefix? a)
+
 ;----------------------#5------------------------
 
 (define (f x) (+ x 2))
