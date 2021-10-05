@@ -149,25 +149,14 @@
 ;----------------------#3------------------------
 
 ;#3.1
+
 (define (string-trim-left str)
-  (define xs1 (string->list str))
-  (define (loop xs)
-    (if (char-whitespace? (car xs))
-        (loop (cdr xs))
-        xs
-        )
-    )
-  (list->string (loop xs1))
+  (if (char-whitespace? (string-ref str 0) )
+      (string-trim-left (substring str 1))
+      str
+      )
   )
 (string-trim-left  "\t\tabc def")
-;то же самое, только без pain:
-;(define (string-trim-left1 str)
-;  (if (char-whitespace? (string-ref str 0) )
-;      (string-trim-left1 (substring str 1))
-;      str
-;      )
-;  )
-;(string-trim-left1  "\t\tabc def")
 
 ;#3.2
 (define (string-reverse str)
