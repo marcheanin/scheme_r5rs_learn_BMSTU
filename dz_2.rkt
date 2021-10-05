@@ -246,9 +246,120 @@
           )
       )
   )
+
 (string-split "x;y;z" ";")     
 (string-split "x-->y-->z" "-->")
 (string-split "qwe-WEF-EW-QDE" "-")
+(newline)
+
+;----------------------#4------------------------
+
+;#4.1
+;(define (make-multi-vector . xs)
+;  (if (null? (car xs))
+;      (if (= (length xs) 1)
+;          0
+;          (cadr xs)
+;          )
+;      (make-vector (car (car xs)) (make-multi-vector (cdr (car xs))))
+;      )
+;  )
+;(define m (make-multi-vector '(11 12 9 16)))
+;(define m1 (make-multi-vector '(2 2) 5))
+;m1
+
+(define (make-list xs)
+  (if (null? xs)
+      '()
+      (cons 0 (make-list (cdr xs)))
+      )
+  )
+
+(define (next-cord cord xs)
+  (if (null? cord)
+      '()
+      (if (< (car cord) (- (car xs) 1))
+          (cons (+ (car cord) 1) (cdr cord))
+          (cons 0 (next-cord (cdr cord) (cdr xs)))
+          )
+      )
+  )
+
+(define (pr xs)
+  (if (null? xs)
+      1
+      (* (car xs) (pr (cdr xs)))
+      )
+  )
+
+(define (make-multi-vector . xs)
+  (define sizes (car xs))
+   (define fill (if (null? (cdr xs))
+                   0
+                   (car (cdr xs))
+                   )
+    )
+    
+  (define cord (make-list (car xs)))
+  (define (loop i n)
+    (if (= i n)
+        '()
+        (if (= i 0)
+            (cons (cons fill (list (reverse cord))) (loop (+ i 1) n))
+            (begin (set! cord (next-cord cord (reverse sizes))) (cons (cons fill (list (reverse cord))) (loop (+ i 1) n)))
+        )
+    )
+    )
+  (list->vector (loop 0 (pr sizes)))
+  )
+;(define m (make-multi-vector '(11 12 9 16)))
+(define m (make-multi-vector '(3 3 3)))
+
+;#4.2
+(define (vector-size m)
+  (length (vector->list m))
+  )
+(define (multi-vector? m)
+  (list? (vector-ref m 0))
+  )
+
+(multi-vector? m)
+(newline)
+
+;#4.3
+(define (multi-vector-set! m cord elem)
+  (define (loop i n)
+    (cond ((= i n) #f)
+      ((equal? (car (cdr (vector-ref m i))) cord) (vector-set! m i (cons elem (list cord))))
+        (else (loop (+ i 1) n))
+    )
+  )
+  (loop 0 (vector-size m))
+  )
+
+(define (multi-vector-ref m cord)
+  (define (loop i n)
+    (cond ((= i n) #f)
+      ((equal? (car (cdr (vector-ref m i))) cord) (car (vector-ref m i)))
+        (else (loop (+ i 1) n))
+    )
+  )
+  (loop 0 (vector-size m))
+  )
+
+(define m (make-multi-vector '(11 12 9 16)))
+(multi-vector? m)
+(multi-vector-set! m '(10 7 6 12) 'test)
+(multi-vector-ref m '(10 7 6 12)) 
+
+; Индексы '(1 2 1 1) и '(2 1 1 1) — разные индексы
+(multi-vector-set! m '(1 2 1 1) 'X)
+(multi-vector-set! m '(2 1 1 1) 'Y)
+(multi-vector-ref m '(1 2 1 1)) 
+(multi-vector-ref m '(2 1 1 1)) 
+
+(define m (make-multi-vector '(3 5 7) -1))
+(multi-vector-ref m '(0 0 0)) 
 
 ;----------------------#5------------------------
 
