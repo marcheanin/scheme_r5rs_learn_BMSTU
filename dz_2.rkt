@@ -13,11 +13,11 @@
 (define (my-flatten xs)
   (if (null? xs)
       '()
-     (if (list? (car xs))
-         (append (my-flatten (car xs)) (my-flatten (cdr xs)))
-         (cons (car xs) (my-flatten (cdr xs)))
+      (if (list? (car xs))
+          (append (my-flatten (car xs)) (my-flatten (cdr xs)))
+          (cons (car xs) (my-flatten (cdr xs)))
+          )
       )
-     )
   )
 (my-flatten '((1) 2 (3 (4 5)) 6))
 
@@ -98,8 +98,8 @@
       (if (my-element? (car xs1) xs2)
           (union (cdr xs1) xs2)
           (union (cdr xs1) (cons (car xs1) xs2)))
-          )
       )
+  )
   
 
 (union '(1 2 3) '(2 3 4))
@@ -119,7 +119,7 @@
 
 ;#2.5
 (define (difference xs1 xs2)
-    (if (null? xs1)
+  (if (null? xs1)
       '()
       (if (my-element? (car xs1) xs2)
           (difference (cdr xs1) xs2)
@@ -192,7 +192,7 @@
 
 ;#3.5
 (define (string-suffix? a b)
-    (cond ((> (string-length a) (string-length b)) #f)
+  (cond ((> (string-length a) (string-length b)) #f)
         ((equal? a (substring b (- (string-length b) (string-length a)))) #t)
         (else #f)
         )
@@ -239,6 +239,7 @@
 (string-split "x;y;z" ";")     
 (string-split "x-->y-->z" "-->")
 (string-split "qwe-WEF-EW-QDE" "-")
+(string-split "abc;def;ghi" ";")
 (newline)
 
 ;----------------------#4------------------------
@@ -283,7 +284,7 @@
 
 (define (make-multi-vector . xs)
   (define sizes (car xs))
-   (define fill (if (null? (cdr xs))
+  (define fill (if (null? (cdr xs))
                    0
                    (car (cdr xs))
                    )
@@ -296,8 +297,8 @@
         (if (= i 0)
             (cons (cons fill (list (reverse cord))) (loop (+ i 1) n))
             (begin (set! cord (next-cord cord (reverse sizes))) (cons (cons fill (list (reverse cord))) (loop (+ i 1) n)))
+            )
         )
-    )
     )
   (list->vector (loop 0 (pr sizes)))
   )
@@ -319,20 +320,20 @@
 (define (multi-vector-set! m cord elem)
   (define (loop i n)
     (cond ((= i n) #f)
-      ((equal? (car (cdr (vector-ref m i))) cord) (vector-set! m i (cons elem (list cord))))
-        (else (loop (+ i 1) n))
+          ((equal? (car (cdr (vector-ref m i))) cord) (vector-set! m i (cons elem (list cord))))
+          (else (loop (+ i 1) n))
+          )
     )
-  )
   (loop 0 (vector-size m))
   )
 
 (define (multi-vector-ref m cord)
   (define (loop i n)
     (cond ((= i n) #f)
-      ((equal? (car (cdr (vector-ref m i))) cord) (car (vector-ref m i)))
-        (else (loop (+ i 1) n))
+          ((equal? (car (cdr (vector-ref m i))) cord) (car (vector-ref m i)))
+          (else (loop (+ i 1) n))
+          )
     )
-  )
   (loop 0 (vector-size m))
   )
 
@@ -348,21 +349,45 @@
 (multi-vector-ref m '(2 1 1 1)) 
 
 (define m (make-multi-vector '(3 5 7) -1))
-(multi-vector-ref m '(0 0 0)) 
+(multi-vector-ref m '(0 0 0))
 
-;----------------------#5------------------------
+(define idxs
+    (apply append
+           (map (lambda (i)
+                (apply append
+                     (map (lambda (j)
+                           (map (lambda (k)
+                               (list i j k))
+                               '(0 1 2))
+                           '(0 1 2)))
+                        '(0 1 2))))
+                        
+(define cube (make-multi-vector '(3 3 3)))
 
-(define (f x) (+ x 2))
-(define (g x) (* x 3))
-(define (h x) (- x))
+(begin
+  (map (lambda (idx)
+                  (multi-vector-set! cube idx idx))
+              idxs)
+  (map (lambda (idx)
+                  (multi-vector-ref cube idx))
+             idxs)))
+  
 
-(define (o . xs)
-  (lambda (x)
-    (if (null? xs)
-        x
-        ((car xs) ((apply o (cdr xs)) x)))))
 
-((o f g h) 1)
-((o f g) 1)
-((o h) 1)
-((o) 1)
+  ;----------------------#5------------------------
+
+  (define (f x) (+ x 2))
+  (define (g x) (* x 3))
+  (define (h x) (- x))
+
+  (define (o . xs)
+    (lambda (x)
+      (if (null? xs)
+          x
+          ((car xs) ((apply o (cdr xs)) x)))))
+
+  ((o f g h) 1)
+  ((o f g) 1)
+  ((o h) 1)
+  ((o) 1)
+  
