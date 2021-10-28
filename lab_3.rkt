@@ -2,10 +2,10 @@
 (define-syntax trace-ex
   (syntax-rules ()
     ((trace-ex object)
-     (let ((result object))
-       (begin
-         (display `object)
-         (display " => ")
+     (begin
+       (display `object)
+       (display " => ")
+       (let ((result object))       
          (display result)
          (newline)
          result
@@ -42,4 +42,60 @@
         (test (signum  2)  1)))
 
 (run-tests the-tests)
+
+;#3
+(define (ref xs . args)
+  
+  (define (loop1 i xs1 arg)
+    (if (null? xs1)
+        #f
+        (if (= i arg)
+            (car xs1)
+            (loop1 (+ i 1) (cdr xs1) arg)
+            )
+        )
+    )
+
+  (define (loop2 i xs1 pos elem)
+    (if (null? xs1)
+        '()
+        (if (= pos i)
+            (append (cons elem (list (car xs1))) (loop2 (+ i 1) (cdr xs1) pos elem))
+            (cons (car xs1) (loop2 (+ i 1) (cdr xs1) pos elem))
+            )
+        )
+    )
+  
+  (define s (cond ((vector? xs) (vector->list xs))
+                  ((string? xs) (string->list xs))
+                  (else xs)
+                  )
+   )
+  
+  (if (= (length args) 1)
+      (loop1 0 s (car args))      
+      (cond ((vector? xs) (list->vector (loop2 0 s (car args) (cadr args))))
+            ((string? xs) (list->string (loop2 0 s (car args) (cadr args))))
+            (else (loop2 0 s (car args) (cadr args)))                  
+            )
+      )
+  )
+
+
+(define the-tests
+  (list (test (ref '(1 2 3) 1) 2)
+        (test (ref #(1 2 3) 1) 2)
+        (test (ref "123" 1) #\2)
+        (test (ref "123" 3) #f)
+        (test (ref '(1 2 3) 1 0) '(1 0 2 3))
+        (test (ref #(1 2 3) 1 0) #(1 0 2 3))
+        )
+  )
+
+(run-tests the-tests)
+
+;#4
+
+
+
 
