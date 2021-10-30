@@ -44,8 +44,7 @@
 (run-tests the-tests)
 
 ;#3
-(define (ref xs . args)
-  
+(define (ref xs . args)  
   (define (loop1 i xs1 arg)
     (if (null? xs1)
         #f
@@ -55,7 +54,6 @@
             )
         )
     )
-
   (define (loop2 i xs1 pos elem)
     (if (null? xs1)
         '()
@@ -65,13 +63,12 @@
             )
         )
     )
-  
+ 
   (define s (cond ((vector? xs) (vector->list xs))
                   ((string? xs) (string->list xs))
                   (else xs)
                   )
-   )
-  
+    )  
   (if (= (length args) 1)
       (loop1 0 s (car args))      
       (cond ((vector? xs) (list->vector (loop2 0 s (car args) (cadr args))))
@@ -80,7 +77,6 @@
             )
       )
   )
-
 
 (define the-tests
   (list (test (ref '(1 2 3) 1) 2)
@@ -96,6 +92,39 @@
 
 ;#4
 
+(define (factorize ex)
+  (define sign (car ex))
+  (define x (ref (ref ex 1) 1))
+  (define y (ref (ref ex 2) 1))
+  (define pow (ref (ref ex 1) 2))
+  (if (eq? pow 2)
+      (if (eq? sign '-)
+          `(* (- ,x ,y) (+ ,x ,y))
+          #f
+          )
+      (if (eq? sign '-)
+          `(* (- ,x ,y) (+ (+ (expt ,x 2) (expt ,y 2)) (* ,x ,y)))
+          `(* (+ ,x ,y) (- (+ (expt ,x 2) (expt ,y 2)) (* ,x ,y)))
+          )
+      )
+  )
+
+
+(define the-tests
+  (list (test (factorize '(- (expt x 2) (expt y 2))) '(* (- x y) (+ x y)))
+        (test (factorize '(- (expt (+ first 1) 2) (expt (- second 1) 2))) '(* (- (+ first 1) (- second 1))
+                                                                              (+ (+ first 1) (- second 1))))
+        (test (eval (list (list 'lambda 
+                                '(x y) 
+                                (factorize '(- (expt x 2) (expt y 2))))
+                          1 2)
+                    (interaction-environment)) -3)
+        (test (factorize '(- (expt a 3) (expt b 3))) '(* (- a b) (+ (+ (expt a 2) (expt b 2)) (* a b))))
+        (test (factorize '(+ (expt a 3) (expt b 3))) '(* (+ a b) (- (+ (expt a 2) (expt b 2)) (* a b))))
+        )
+  )
+
+(run-tests the-tests)
 
 
 
