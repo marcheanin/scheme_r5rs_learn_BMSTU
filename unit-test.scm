@@ -10,7 +10,7 @@
   (display #\newline)
   (display (car xs))
   (let
-      ((head (eval (car xs)
+      ((head (eval (car xs)     
                    (interaction-environment)))
        (expect (cadr xs)))
 
@@ -29,8 +29,14 @@
           #f))))
 
 (define (run-tests the-tests)
-  (if (null? the-tests)
-      (begin (display #\newline) #t)
-      (and (run-test (car the-tests)) (run-tests (cdr the-tests)))
-      )
+  (define (loop tests flag)
+    (if (null? tests)
+        (begin (display #\newline) flag)
+        (if (run-test (car tests))
+            (loop (cdr tests) flag)
+            (loop (cdr tests) #f)
+            )
+        )
+    )
+  (loop the-tests #t)
   )
