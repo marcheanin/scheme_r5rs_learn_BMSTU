@@ -19,7 +19,7 @@
         ((= (length xs) 3) (cond ((eq? (car xs) '*) (cond ((and (list? (list-ref xs 2)) (list? (list-ref xs 1))) `(+ (* ,(derivative (list-ref xs 1)) ,(list-ref xs 2)) (* ,(list-ref xs 1) ,(derivative (list-ref xs 2)))))
                                                           ((list? (list-ref xs 2)) `(* ,(list-ref xs 1) ,(derivative (list-ref xs 2))))
                                                           ((number? (list-ref xs 1)) `(* ,(list-ref xs 1) ,@(derivative (list (list-ref xs 2)))))
-                                                          (else (derivative `(expt ,(list-ref xs 1) 2))))
+                                                          (else `(+ (* ,@(derivative (list (list-ref xs 1))) ,(list-ref xs 2)) (* ,(list-ref xs 1) ,@(derivative (list (list-ref xs 2)))))))
                                                     )
                                  ((eq? (car xs) '+) (if (list? (list-ref xs 1))
                                                         `(+ ,(derivative (list-ref xs 1)) ,(derivative (list-ref xs 2)))
@@ -50,7 +50,7 @@
         (test (derivative '(* -4 x))  '(* -4 1))
         (test (derivative '(- (* 2 x) 3))  '(- (* 2 1) 0))
         (test (derivative '(- (* 2 a) a))  '(- (* 2 1) 1))
-        (test (derivative '(expt 5 x))  '(* (expt 5 x) (ln 5)))
+        (test (derivative '(expt 5 x))  '((* (expt 5 x) (ln 5)) (* (ln 5) (expt 5 x))))
         (test (derivative '(expt x 10))  '(* 10 (expt x 9)))
         (test (derivative '(* 2 (expt a 5)))  '(* 2 (* 5 (expt a 4))))
         (test (derivative '(- (* 2 x) 3))  '(- (* 2 1) 0))
@@ -89,6 +89,7 @@
   (derivative (list '* 'x 'x))
   (derivative '(* 2 (expt x 5)))
   (derivative '(expt x 10))
+  
   (run-tests the-tests)
 
 

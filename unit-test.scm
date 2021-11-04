@@ -1,10 +1,15 @@
 (define-syntax test
-  (syntax-rules ()
+  (syntax-rules (list)
     ( (test def res )
       (begin
         (let ((xs (quote def))
               (result res))
-          (list xs result))))))
+          (list xs result))))
+    ;( (test def (list ress))
+    ;  (begin
+    ;   (let ((xs (quote def)) (results ress))
+    ;     (list xs results))))
+    ))
 
 (define (run-test xs)
   (display #\newline)
@@ -13,8 +18,20 @@
       ((head (eval (car xs)     
                    (interaction-environment)))
        (expect (cadr xs)))
-
-    (if (equal? head expect)
+    ;(newline)
+    ;(display head)
+    ;(newline)
+    ;(display expect)
+    
+    (define (check expects)
+      (if (null? expects)
+          #f
+          (or (equal? (car expects) head) (check (cdr expects)))
+          )
+      )
+      
+    
+    (if (or (equal? head expect) (and (list? expect) (check expect)))
         (begin
           (display " ok")
           #t)
@@ -31,7 +48,7 @@
 (define (run-tests the-tests)
   (define (loop tests flag)
     (if (null? tests)
-        (begin (display #\newline) flag)
+        (begin (newline) flag)
         (if (run-test (car tests))
             (loop (cdr tests) flag)
             (loop (cdr tests) #f)
