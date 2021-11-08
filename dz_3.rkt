@@ -36,8 +36,13 @@
                                  ((eq? (car xs) '/)  `(/ (- (* ,@(derivative (list (list-ref xs 1))) ,(list-ref xs 2)) (* ,(list-ref xs 1) ,@(derivative (list (list-ref xs 2))))) (expt ,(list-ref xs 2) 2)))
                                  )
                            )
-                           
+        (else (cond ((eq? (car xs) '+) `(+ ,(derivative (list-ref xs 1)) ,(derivative `(+ ,@(cdr (cdr xs))))))
+                    ((eq? (car xs) '*) `(* (+ (* ,(derivative (list-ref xs 1)) ,(cdr (cdr xs))) (* ,(list-ref xs 1) ,(derivative `(* (cdr (cdr xs))))))))
+                    ((eq? (car xs) 'expt) `(,(derivative `(expt ,(list-ref xs 1) ,(cdr (cdr xs)))))) 
+                    )
+              )
         )
+        
   )
 
 
@@ -84,11 +89,22 @@
                                                                         (*
                                                                          (* 2 (* 2 (expt x 1)))
                                                                          (- (sin (* 2 (expt x 2))))))))
+        (test (derivative '(+ (expt x 10) (sin x) (cos x) (expt 5 x))) '(+
+                                                                         (* 10 (expt x 9))
+                                                                         (+
+                                                                          (cos x)
+                                                                          (+ (- (sin x)) (* (expt 5 x) (ln 5))))))
+        (test (derivative '(* (expt x 10) (sin x) (cos x))) '(*
+                                                             (+
+                                                              (* (* 10 (expt x 9)) ((sin x) (cos x)))
+                                                              (* (expt x 10) (* 1)))))
               )
         )
   (derivative (list '* 'x 'x))
   (derivative '(* 2 (expt x 5)))
   (derivative '(expt x 10))
+  ;(derivative '(+ (expt x 10) (sin x) (cos x) (expt 5 x)))
+  ;(derivative '(* (expt x 10) (sin x) (cos x)))
   
   (run-tests the-tests)
 
