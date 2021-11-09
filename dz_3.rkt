@@ -43,7 +43,7 @@
                            )
         (else (cond ((eq? (car xs) '+) `(+ ,(derivative (list-ref xs 1)) ,(derivative `(+ ,@(cdr (cdr xs))))))
                     ((eq? (car xs) '-) `(- ,(derivative (list-ref xs 1)) ,(derivative `(- ,@(cdr (cdr xs))))))
-                    ((eq? (car xs) '*) `(* (+ (* ,(derivative (list-ref xs 1)) ,(cdr (cdr xs))) (* ,(list-ref xs 1) ,(derivative `(* (cdr (cdr xs))))))))
+                    ((eq? (car xs) '*) `(+ (* ,(derivative (list-ref xs 1)) ,(cdr (cdr xs))) (* ,(list-ref xs 1) ,(derivative `(* (cdr (cdr xs)))))))
                     ((eq? (car xs) 'expt) `(,(derivative `(expt ,(list-ref xs 1) ,(cdr (cdr xs)))))) 
                     )
               )
