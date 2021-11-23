@@ -46,32 +46,11 @@
 
 ;#2
 (define (load-data file)
-  (call-with-input-file file
-    (lambda (port)
-      (define str "")
-      (define (read-loop xs)
-        (set! str (read-char port))
-        (if (eof-object? str)
-            xs
-            (read-loop (append xs (list str)))
-            )
-        )
-      (list->string (read-loop '()))
-      ))
+  (call-with-input-file file (lambda (port) (read port)))
   )
 
 (define (save-data data file)
-  (call-with-output-file file
-    (lambda (port)
-      (define (write-loop data)
-        (if (null? data)
-            #t
-            (begin (display (car data) port) (write-loop (cdr data)))
-            )
-        )
-      (write-loop (list data))
-      )
-    )
+  (call-with-output-file file (lambda (port) (write data port)))
   )
     
 (define data (load-data "input.txt"))
@@ -90,7 +69,7 @@
         (set! str2 (read-char port))
         (if (eof-object? str2)
             count
-            (if (or (and (eq? str2 #\return) (not (eq? str1 #\newline))) (and (eq? str2 #\newline) (not (eq? str1 #\newline))))
+            (if (or (and (eq? str2 #\return) (not (eq? str1 #\newline))) (and (eq? str2 #\newline) (not (eq? str1 #\newline)) (not (eq? str1 #\return))))
                 (read-loop (+ count 1))
                 (read-loop count)
                 )
