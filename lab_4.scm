@@ -83,12 +83,14 @@
 (define (count-line file)
   (call-with-input-file file
     (lambda (port)
-      (define str "")
+      (define str1 "")
+      (define str2 "")
       (define (read-loop count)
-        (set! str (read-char port))
-        (if (eof-object? str)
+        (set! str1 str2)
+        (set! str2 (read-char port))
+        (if (eof-object? str2)
             count
-            (if (or (eq? str #\newline) (eq? str #\return))
+            (if (or (and (eq? str2 #\return) (not (eq? str1 #\newline))) (and (eq? str2 #\newline) (not (eq? str1 #\newline))))
                 (read-loop (+ count 1))
                 (read-loop count)
                 )
@@ -270,5 +272,23 @@
            (set! i (+ i 1))
            (newline))
           until (= i 3)))
-
+(newline)
 ;Д
+(define-syntax cout
+  (syntax-rules (<<)
+    ((cout . actions) (letrec ((loop (lambda (actions1)
+                                       (if (null? actions1)
+                                           (display "")
+                                           (begin
+                                             (let ((action (cadr actions1)))
+                                               (if (eq? action 'endl)
+                                                   (newline)
+                                                   (display action)))
+                                             (loop (cddr actions1)))
+                                           )
+                                       ))) (loop 'actions))
+                      )
+    )
+  )
+
+(cout << "a = " << 1 << endl << "b = " << 2 << endl)                   
