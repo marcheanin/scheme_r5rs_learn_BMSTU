@@ -22,7 +22,12 @@
     (lambda ()
       (set! x (+ 1 x))
       x)))
-
+(define counter-tests
+  (list
+    (test (counter) 1)   ; OK
+    (test (counter) 3)   ; FAIL
+    (test (counter) 3))) ; OK
+(run-tests counter-tests)
 (+ 1 (trace-ex (counter)))
 (+ 1 (trace-ex (counter)))
 ;(trace-ex (/ 1 0))
