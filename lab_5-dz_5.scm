@@ -4,7 +4,7 @@
 'feature-nested-if
 'feature-repeat-loop
 'feature-break-continue
-'feature-switch-case
+;'feature-switch-case
 
 (define (interpret program stack)
   (letrec
@@ -169,6 +169,17 @@
                                           ))
                                        ((equal? symbol 'exitcase)
                                         (set! i (skip (+ i 1) 1 'switch 'endswitch)))
+                                   ((equal? symbol 'lambda)
+                                        (begin
+                                          (set! stack (cons (list (+ i 0)) stack))
+                                          (set! i (skip (+ 1 i) 1 'lambda 'endlambda))))
+                                       ((equal? symbol 'do)
+                                        (begin
+                                          (set! return-stack (cons i return-stack))
+                                          (set! i (caar stack))
+                                          (set! return-stack (cons (+ i 1) return-stack))
+                                          (set! stack (cdr stack))
+                                          ))
                                    )
                                  
                                    
@@ -291,6 +302,9 @@
   )
 
 (run-tests tests)
+                
+
+
       
 
                
