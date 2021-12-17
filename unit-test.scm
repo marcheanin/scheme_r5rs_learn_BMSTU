@@ -13,7 +13,7 @@
 
 (define (run-test xs)
   (display #\newline)
-  (display (car xs))
+  (write (car xs))
   (let
       ((head (eval (car xs)     
                    (interaction-environment)))
@@ -39,10 +39,10 @@
           (display " FAIL")
           (display #\newline)
           (display "  Expected:")
-          (display expect)
+          (write expect)
           (display #\newline)
           (display "  Returned:")
-          (display head)
+          (write head)
           #f))))
 
 (define (run-tests the-tests)
