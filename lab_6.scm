@@ -9,14 +9,19 @@
 ;<fraction> := <sign> <number> SLASH <number>
 ;<number> := <digit> | <number> <digit>
 ;<digit> := 0|1|2|3|4|5|6|7|8|9
+;<other-symbols> := ASCII-SYMBOLS
 ;<sign> := - | +
 
 ;FINISH-SYMBOL
 (define finish-symbol #\⛔)
 
+;функции работы с потоком
+
+;<expression> := <content> FINISH-SYMBOL
 (define (make-stream str)
   (append (string->list str) (list finish-symbol))
   )
+
 
 (define (peek stream)
   (if (null? stream)
@@ -93,7 +98,7 @@
            (stream-denominator '())
            (sign 1)
            (make-stream-loop (lambda (xs1 xs2 finish)
-                               (if (or (equal? (peek xs1) finish) (equal? (peek xs1) finish-symbol) (null? xs1))
+                               (if (or (equal? (peek xs1) finish) (equal? (peek xs1) finish-symbol) (null? xs1))  ;2a13/122d221f    (2 1 3)
                                    xs2
                                    (make-stream-loop (cdr xs1) (append xs2 (list (peek xs1))) finish)
                                    )
@@ -114,6 +119,7 @@
           ;denominator
           (set! stream-denominator (make-stream-loop stream '() finish-symbol))
           (set! stream (next-col (length stream-denominator) stream))
+          
           (if (and (Num? stream-numerator) (Num? stream-denominator))
               (list (* sign (Num stream-numerator)) (Num stream-denominator))
               #f
@@ -131,9 +137,9 @@
                    (if (equal? (peek xs) finish-symbol)
                        fracs
                        (if (or (Digit? (peek xs)) (Sign? (peek xs)))
-                           (begin (set! x (try-frac (append xs (list finish-symbol))))
+                           (begin (set! x (try-frac xs))
                                   (if (null? x)
-                                      ;(loop (cdr xs) fracs)
+                                      ;(loop (cdr xs) fracs) ;если вернуть эту строку то рпограмма будет выделять все сущ. дроби
                                       #f
                                       (loop (next-col (length x) xs) (append fracs (frac x)))
                                       ))
@@ -146,7 +152,7 @@
                        (letrec ((loop2 (lambda (xs1 xs2 res)
                                          (if (null? xs1)
                                              res
-                                             (begin (set! xs2 (append xs2 (list (car xs1))))
+                                             (begin (set! xs2 (append xs2 (list (car xs1))))  ;+23432432/34  
                                                     (if (frac xs2)
                                                         (set! res xs2))
                                                     (loop2 (cdr xs1) xs2 res))
@@ -155,13 +161,14 @@
                          (loop2 xs '() '())
                          )
                        ))
-           (complete-fracs (lambda (xs1 xs2)
+           (complete-fracs (lambda (xs1 xs2) ;(1 2 3 4) -> (1/2 3/4)
                              (if (null? xs1)
                                  xs2
                                  (complete-fracs (cdr (cdr xs1)) (append xs2 (list (/ (car xs1) (car (cdr xs1))))))
                                  )
                              ))
            )
+    
     (set! list-fracs (loop stream '()))
     (if (eq? list-fracs #f)
         #f
@@ -203,7 +210,7 @@
                (test (scan-frac "5.0/10") #f)
                (test (scan-frac "FF/10") #f)
 
-               (test (scan-many-fracs "111/1233 11/222 -2/23") '(111/1233 11/222 -2/23))
+               (test (scan-many-fracs "111/1233sfsaf dsadf11/222sdfa sdf-2/23dsas") '(111/1233 11/222 -2/23))
                (test (scan-many-fracs "\t1/2 1/3\n\n10/8") '(1/2 1/3 5/4))
                (test (scan-many-fracs "\t1/2 1/3\n\n2/-5") #f)
                )
@@ -215,14 +222,13 @@
 ;структура с основными операциями
 (define-struct stream (symbols))
 (define (stream-peek stream)
-  (and
-   (pair? (stream-symbols stream))
-   (let ((symbol (car (stream-symbols stream))))
-     symbol)))
+  (if (pair? (stream-symbols stream))
+      (let ((symbol (car (stream-symbols stream))))
+        symbol)))
 (define (stream-next stream)
   (let ((symbol (car (stream-symbols stream))))
     (set-stream-symbols! stream (cdr (stream-symbols stream)))
-    symbol))
+    ))
 (define (string->stream str)
   (make-stream (string->list (string-append str (string finish-symbol)))))
 
@@ -233,12 +239,14 @@
 (define (parse vec)
   (letrec (
            (stream (vector->stream vec))
-           (forbidden-words (map list (list finish-symbol 'endif 'end)))
+           (special-words (map list (list finish-symbol 'endif 'end)))
            ; finish-symbol
            (parse-finish-symbol (lambda ()
                                   (let ((finish (stream-peek stream)))
-                                    (and (equal? finish finish-symbol)
-                                         (begin (stream-next stream) finish))))
+                                    (if (equal? finish finish-symbol)
+                                         (begin (stream-next stream) finish)
+                                         )
+                                    ))
                                 )
            ; <Program>  ::= <Articles> <Body> .
            (parse-program (lambda ()
@@ -269,13 +277,15 @@
            (parse-end (lambda ()
                         (let ((end (stream-peek stream)))
                           (and (equal? end 'end)
-                               (begin (stream-next stream) end)))))
+                               (begin (stream-next stream) end)))
+                        ))
            ; word
            (parse-word (lambda ()
                          (let ((word (stream-peek stream)))
                            (begin
                              (stream-next stream)
-                             word)))
+                             word))
+                         )
                        )
            ; <Article>  ::= define word <Body> end .
            (parse-article (lambda ()
@@ -314,7 +324,7 @@
                                 (and first body
                                      (cons first body))))
                              ; word <Body>
-                             ((not (assq first forbidden-words))
+                             ((not (assq first special-words))
                               (stream-next stream)
                               (let ((body (parse-body)))
                                 (and first body
