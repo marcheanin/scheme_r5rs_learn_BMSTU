@@ -34,9 +34,9 @@
                                                              (else `(expt e ,(list-ref xs 2))))
                                                        )
                                  ((eq? (car xs) '/)  (if (list? (list-ref xs 2))
-                                                                `(/ (- (* ,@(derivative (list (list-ref xs 1))) ,(list-ref xs 2)) (* ,(list-ref xs 1) ,(derivative (list-ref xs 2)))) (expt ,(list-ref xs 2) 2))
-                                                                `(/ (- (* ,@(derivative (list (list-ref xs 1))) ,(list-ref xs 2)) (* ,(list-ref xs 1) ,@(derivative (list (list-ref xs 2))))) (expt ,(list-ref xs 2) 2))
-                                                                )
+                                                         `(/ (- (* ,@(derivative (list (list-ref xs 1))) ,(list-ref xs 2)) (* ,(list-ref xs 1) ,(derivative (list-ref xs 2)))) (expt ,(list-ref xs 2) 2))
+                                                         `(/ (- (* ,@(derivative (list (list-ref xs 1))) ,(list-ref xs 2)) (* ,(list-ref xs 1) ,@(derivative (list (list-ref xs 2))))) (expt ,(list-ref xs 2) 2))
+                                                         )
                                                      )
                                                                 
                                  )
@@ -61,7 +61,7 @@
         (test (derivative '(* -4 x))  '(* -4 1))
         (test (derivative '(- (* 2 x) 3))  '(- (* 2 1) 0))
         (test (derivative '(- (* 2 a) a))  '(- (* 2 1) 1))
-        (test (derivative '(expt 5 x))  '((* (expt 5 x) (ln 5)) (* (ln 5) (expt 5 x))))
+        (test (derivative '(expt 5 x))  '(* (expt 5 x) (ln 5)))
         (test (derivative '(expt x 10))  '(* 10 (expt x 9)))
         (test (derivative '(* 2 (expt a 5)))  '(* 2 (* 5 (expt a 4))))
         (test (derivative '(- (* 2 x) 3))  '(- (* 2 1) 0))
@@ -100,18 +100,16 @@
                                                                          (+
                                                                           (cos x)
                                                                           (+ (- (sin x)) (* (expt 5 x) (ln 5))))))
-        (test (derivative '(* (expt x 10) (sin x) (cos x))) '(*
-                                                             (+
+        (test (derivative '(* (expt x 10) (sin x) (cos x))) '(+
                                                               (* (* 10 (expt x 9)) ((sin x) (cos x)))
-                                                              (* (expt x 10) (* 1)))))
+                                                              (* (expt x 10) (* 1)))
+              
               )
         )
-  (derivative (list '* 'x 'x))
-  (derivative '(* 2 (expt x 5)))
-  (derivative '(expt x 10))
-  ;(derivative '(+ (expt x 10) (sin x) (cos x) (expt 5 x)))
-  ;(derivative '(* (expt x 10) (sin x) (cos x)))
-  (run-tests the-tests)
+  )
+;(derivative '(+ (expt x 10) (sin x) (cos x) (expt 5 x)))
+;(derivative '(* (expt x 10) (sin x) (cos x)))
+(run-tests the-tests)
 
 
 
@@ -119,4 +117,3 @@
 
 
                             
-  

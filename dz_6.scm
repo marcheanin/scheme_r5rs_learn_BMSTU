@@ -137,16 +137,6 @@
            )
     (scan-token-seq)))
 
-; Unit tests
-
-(define tests (list
-               (test (tokenize "1") '(1))
-               (test (tokenize "-a") '(- a))
-               (test (tokenize "-a + b * x^2 + dy") '(- a + b * x ^ 2 + dy))
-               (test (tokenize "(a - 1)/(b + 1)") '("(" a - 1 ")" / "(" b + 1 ")"))
-               ))
-
-(run-tests tests)
 
 ;; == 2 : PARSE =====================================================
 
@@ -276,18 +266,6 @@
            )
     (scan-finished-expr)))
 
-; Unit tests
-
-(define tests (list
-               (test (parse (tokenize "(a - 1)/(b + 1)")) '((a - 1) / (b + 1)))
-               (test (parse (tokenize "a/b/c/d")) '(((a / b) / c) / d))
-               (test (parse (tokenize "a^b^c^d")) '(a ^ (b ^ (c ^ d))))
-               (test (parse (tokenize "a/(b/c)")) '(a / (b / c)))
-               (test (parse (tokenize "a + b/c^2 - d")) '((a + (b / (c ^ 2))) - d))
-               (test (parse (tokenize "a ^ -b")) '(a ^ (- b)))))
-
-(run-tests tests)
-
 ;; == 3 : TREE TO SCHEME ===========================================
 
 (define (tree->scheme lst)
@@ -301,16 +279,6 @@
       (if (equal? lst '^)
           'expt
           lst)))
-
-; Unit tests
-
-(define tests (list
-               (test (tree->scheme (parse (tokenize "x^(a + 1)"))) '(expt x (+ a 1)))
-               (test (tree->scheme (parse (tokenize "-a"))) '(- a))
-               (test (eval (tree->scheme (parse (tokenize "2^2^2^2"))) (interaction-environment)) 65536)
-               ))
-
-(run-tests tests)
 
            
            

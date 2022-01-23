@@ -32,10 +32,10 @@
               res))))))
 
 
-(begin
-  (display (memoized-factorial 5)) (newline)
-  (display (memoized-factorial 50)) (newline)
-  )
+;(begin
+;  (display (memoized-factorial 5)) (newline)
+;  (display (memoized-factorial 50)) (newline)
+;  )
 
 ;#2
 (define-syntax lazy-cons
@@ -55,12 +55,17 @@
         '()))
   (loop xs 0 k))
 
-(define (lazy-ref xs k)
-  (define (loop xs i k)
-    (if (< i k)
-        (loop (lazy-cdr xs) (+ i 1) k)
-        (lazy-car xs)))
-  (loop xs 1 k))
+;(define (lazy-ref xs k)
+;  (define (loop xs i k)
+;    (if (< i k)
+;        (loop (lazy-cdr xs) (+ i 1) k)
+;        (lazy-car xs)))
+;  (loop xs 1 k))
+
+(define (lazy-ref xs i)
+  (if (eq? i 0)
+      (lazy-car xs)
+      (lazy-ref (lazy-cdr xs) (- i 1))))
 
 (define (naturals start)
   (lazy-cons start (naturals (+ 1 start))))
@@ -73,11 +78,11 @@
 (define (lazy-factorial n)
   (lazy-ref (generate-factorials) n))
 
-(display (lazy-head (naturals 10) 12)) (newline)
-
-(begin
-  (display (lazy-factorial 10)) (newline)
-  (display (lazy-factorial 50)) (newline))
+;(display (lazy-head (naturals 10) 12)) (newline)
+(lazy-ref (naturals 10) 100500)
+;(begin
+;  (display (lazy-factorial 10)) (newline)
+;  (display (lazy-factorial 50)) (newline))
 
 ;#3
 (define (read-words)
@@ -121,8 +126,8 @@
                        (s->s (string-append (s->s 'name)  "?"))
                        'struct)
               (list 'and
-                    (list 'pair? 'struct)
-                    (list 'equal? (list 'car 'struct) (s->s 'name))))
+                    (list 'list? 'struct)
+                    (list 'eq? (list 'car 'struct) (s->s 'name))))
         (interaction-environment))
        (let ((fields-stringed (map s->s '(fields ...))))
          ; REF
@@ -156,22 +161,22 @@
                       (lambda (field1 ...)
                         (list (list 'd-name 'data-name) (list 't-name 'name)
                               (list 'field1 field1) ...)))) ...
-       (my-eval (list 'define
-                      (s->s (string-append (s->s 'data-name) "?"))
-                      (lambda (x)
-                        (and (list? x) (>= (length x) 2)
-                             (let ((d-nameres (assoc 'd-name x)))
-                               (and d-nameres (equal? (cadr d-nameres) 'data-name)))))))))))
+                                                            (my-eval (list 'define
+                                                                           (s->s (string-append (s->s 'data-name) "?"))
+                                                                           (lambda (x)
+                                                                             (and (list? x) (>= (length x) 2) (list? 'd-name)
+                                                                                  (let ((d-nameres (assoc 'd-name x)))
+                                                                                    (and d-nameres (equal? (cadr d-nameres) 'data-name)))))))))))
 
 (define-syntax match
   (syntax-rules ()
     ((match x ((name field1 ...) expr) ...)
-       (cond
-         ((equal? (cadadr x) 'name)
-           (let ((field1 (cadr (assoc 'field1 x))) ...)
-             expr))
-          ...
-          (else x)))))
+     (cond
+       ((equal? (cadadr x) 'name)
+        (let ((field1 (cadr (assoc 'field1 x))) ...)
+          expr))
+       ...
+       (else x)))))
 
 
 ; TESTS
@@ -193,10 +198,10 @@
 ; Пусть определение алгебраического типа вводит
 ; не только конструкторы, но и предикат этого типа:
 ;
-(display (and (figure? s)
-              (figure? r)
-              (figure? t)
-              (figure? c))) (newline)
+;(display (and (figure? s)
+;              (figure? r)
+;              (figure? t)
+;              (figure? c))) (newline)
 
 (define pi (acos -1)) ; Для окружности
   
@@ -207,7 +212,7 @@
     ((triangle a b c) (+ a b c))
     ((circle r)       (* 2 pi r))))
   
-(display (perim s)) (newline)
-(display (perim r)) (newline)
-(display (perim t)) (newline)
-(display (perim c)) (newline)
+;(display (perim s)) (newline)
+;(display (perim r)) (newline)
+;(display (perim t)) (newline)
+;(display (perim c)) (newline)

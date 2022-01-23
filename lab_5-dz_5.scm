@@ -2,8 +2,8 @@
 
 'feature-if-else
 'feature-nested-if
-'feature-repeat-loop
-'feature-break-continue
+;'feature-repeat-loop
+;'feature-break-continue
 ;'feature-switch-case
 
 (define (interpret program stack)
